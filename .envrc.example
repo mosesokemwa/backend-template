@@ -1,0 +1,4 @@
+export SECRET_KEY='secret-key'
+export DEBUG=True
+export REDIS_URL=''
+export DATABASE_URL=''
