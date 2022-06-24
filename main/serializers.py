@@ -7,6 +7,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.conf import settings
 
+from main.models import ResidentialAddressModel
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -74,10 +76,10 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = get_user_model()
-        fields = ('id', 'email', 'first_name',"middle_name", "last_name", "dob", "phone_number",  "is_admin", "is_active")
+        fields = ('id', 'email', 'first_name',"middle_name", "last_name", "dob", "phone_number",)
 
 
 class ResidentialAddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
+        model = ResidentialAddressModel
         fields = ('id', "nationality", "country", "state" ,"city", "zip",)
