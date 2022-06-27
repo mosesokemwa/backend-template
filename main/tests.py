@@ -65,7 +65,7 @@ class AuthenticationTests(APITestCase):
             'phone_number':'1234567890'
             }
         # add access token to request
-        response = self.client.patch('/api/update/profile/', data)
+        response = self.client.patch('/api/user/', data)
 
 
         # Test that the response is 200 OK.

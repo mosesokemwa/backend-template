@@ -76,10 +76,10 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = get_user_model()
-        fields = ('id', 'email', 'first_name',"middle_name", "last_name", "dob", "phone_number",)
-
+        fields = ['id', 'email', 'first_name',"middle_name", "last_name", "dob", "phone_number",]
+        depth = 2
 
 class ResidentialAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidentialAddressModel
-        fields = ('id', "nationality", "country", "state" ,"city", "zip",)
+        fields = ['id', "nationality", "country", "state" ,"city", "zip",]

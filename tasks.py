@@ -69,3 +69,8 @@ def test(ctx, coverage=False, verbose=False, failfast=False):
     args = f"{args} --verbose" if verbose else args
     args = f"{args} --failfast" if failfast else args
     ctx.run(f"python manage.py test {args}", echo=True, pty=True)
+
+@task()
+def freeze(ctx):
+    # freeze installed packages in requirements.txt
+    ctx.run("pip freeze > requirements.txt", echo=True)

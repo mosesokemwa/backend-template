@@ -78,7 +78,9 @@ class UserModel(AbstractBaseUser):
 
 
 class ResidentialAddressModel(models.Model):
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    # one to one with user model
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
     nationality = models.CharField(max_length=254, blank=True)
     country = models.CharField(max_length=254, blank=True)
     state = models.CharField(max_length=254, blank=True)
@@ -86,7 +88,7 @@ class ResidentialAddressModel(models.Model):
     zip = models.CharField(max_length=254, blank=True)
 
     def __str__(self):
-        return f'{self.user.first_name} {self.user.last_name}'
+        return self.user.email
 
     class Meta:
         verbose_name = 'Residential Address'
