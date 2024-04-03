@@ -14,7 +14,6 @@ repos:
         args: [
           --max-line-length=113,
         ]
-        extend-ignore: E203
         exclude: ^($), migrations
         types: ['python']
         description: 'Check for style errors'
