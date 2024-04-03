@@ -6,6 +6,7 @@ from invoke import task
 
 
 def taskfile_dir() -> str:
+    """Returns the absolute path of the directory containing the current script."""
     directory = Path(__file__).parent.absolute()
     return str(directory)
 
@@ -77,20 +78,28 @@ def test(ctx, coverage=False, verbose=False, failfast=False):
 
 @task()
 def freeze(ctx):
-    # freeze installed packages in requirements.txt
+    """freeze installed packages in requirements.txt"""
     ctx.run("pip freeze > requirements.txt", echo=True)
+
 
 @task()
 def shell(ctx):
     """Runs Django shell"""
     ctx.run("python manage.py shell", echo=True, pty=True)
 
+
 @task()
 def shell_plus(ctx):
     """Runs Django shell_plus"""
     ctx.run("python manage.py shell_plus", echo=True, pty=True)
 
+
 @task()
 def startapp(ctx, app):
     """Runs Django startapp"""
     ctx.run(f"python manage.py startapp {app}", echo=True, pty=True)
+
+@task()
+def superuser(ctx):
+    """Create superuser"""
+    ctx.run("python manage.py createsuperuser", echo=True, pty=True)
