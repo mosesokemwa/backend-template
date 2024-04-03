@@ -27,6 +27,7 @@ API_PREFIX = f"api/{config('API_VERSION_PREFIX', default='v1')}"
 
 public_apis = [
     path(f'{API_PREFIX}/auth/', include('apps.auth_app.urls')),
+    path(f'{API_PREFIX}/', include('apps.health.urls')),
 ]
 
 
