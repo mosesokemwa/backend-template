@@ -1,13 +1,12 @@
 import json
 
-from config import __version__
 from django.contrib.auth.tokens import default_token_generator
 from django.test import RequestFactory
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from main.models import UserModel
+from apps.main.models import UserModel
 
 
 def get_tokens_for_user(user):
@@ -17,6 +16,7 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+
 
 class AuthenticationTests(APITestCase):
 
@@ -29,15 +29,15 @@ class AuthenticationTests(APITestCase):
             first_name='admin_user_factory'
         )
         self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION = 'Bearer ' + get_tokens_for_user(self.user)['access'])
-
-
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer ' + get_tokens_for_user(self.user)['access'])
 
     def test_register_view(self):
         """
         Ensure we can create a new account object.
         """
-        data = {'email':'user@test.com', 'password':'top_secret', 'password2':'top_secret', 'first_name':'admin_user'}
+        data = {'email': 'user@test.com', 'password': 'top_secret', 'password2': 'top_secret',
+                'first_name': 'admin_user'}
         response = self.client.post('/api/register/', data)
         # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['first_name'], data['first_name'])
@@ -46,7 +46,7 @@ class AuthenticationTests(APITestCase):
 
     def test_login_view(self):
         # login data
-        data = {'email':'user@test.com', 'password':'top_secret'}
+        data = {'email': 'user@test.com', 'password': 'top_secret'}
         # Create an instance of a GET request.
         response = self.client.get('/api/login/', data)
         # Test that the response is 200 OK.
@@ -54,19 +54,17 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(response.data['refresh'], get_tokens_for_user(self.user)['refresh'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
     def test_update_profile_view(self):
         # Create an instance of a GET request.
         data = {
-            'first_name':'admin_user_first',
-            'last_name':'admin_user_last',
-            'middle_name':'admin_user_middle',
+            'first_name': 'admin_user_first',
+            'last_name': 'admin_user_last',
+            'middle_name': 'admin_user_middle',
             'dob': '2020-01-01',
-            'phone_number':'1234567890'
-            }
+            'phone_number': '1234567890'
+        }
         # add access token to request
         response = self.client.patch('/api/user/', data)
-
 
         # Test that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
@@ -93,8 +91,6 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response.data, json.dumps(data))
 
-
-
     def test_user_model(self):
         user_model = UserModel()
         self.assertEqual(user_model.email, 'user@test.com')
@@ -102,14 +98,12 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(user_model.first_name, 'admin_user')
         self.assertEqual(user_model.is_active, False)
 
-
     def test_private_view(self):
         # Create an instance of a GET request.
         response = self.client.get('/api/private/')
         # Test that the response is 200 OK.
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'message': 'Hello World!'})
-
 
     def test_confirm_email_view(self):
         user = UserModel()
@@ -119,4 +113,3 @@ class AuthenticationTests(APITestCase):
         # Test that the response is 200 OK.
         self.assertEqual(response.data, {'message': 'Email confirmed'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-

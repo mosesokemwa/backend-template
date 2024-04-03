@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any, Optional
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser
@@ -15,7 +14,13 @@ class UserManager(BaseUserManager):
             raise ValueError('User must have a valid email')
 
         email = self.normalize_email(email)
-        user = self.model(email=email, created_at=datetime.now(), must_change_password=True, deleted=False, **extra_fields)
+        user = self.model(
+            email=email,
+            created_at=datetime.now(),
+            must_change_password=True,
+            deleted=False,
+            **extra_fields
+        )
         user.first_name = first_name
         user.set_password(password)
         user.save(using=self._db)
@@ -43,7 +48,6 @@ class UserModel(AbstractBaseUser):
 
     objects = UserManager()
 
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=254)
     email = models.EmailField(max_length=254, unique=True, null=False, blank=False)
     email_verified = models.BooleanField(default=False)
@@ -59,7 +63,6 @@ class UserModel(AbstractBaseUser):
     phone_number = models.CharField(max_length=254, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     class Meta:
         ordering = ['-created_at']
@@ -78,8 +81,6 @@ class UserModel(AbstractBaseUser):
 
 
 class ResidentialAddressModel(models.Model):
-    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
-    # one to one with user model
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
     nationality = models.CharField(max_length=254, blank=True)
     country = models.CharField(max_length=254, blank=True)

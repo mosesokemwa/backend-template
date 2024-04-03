@@ -1,13 +1,13 @@
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.conf import settings
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from main.models import ResidentialAddressModel
+from apps.main.models import ResidentialAddressModel
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -20,13 +20,15 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['id'] = user.id
         return token
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-            required=True,
-            validators=[UniqueValidator(queryset=get_user_model().objects.all())]
-            )
+        required=True,
+        validators=[UniqueValidator(queryset=get_user_model().objects.all())]
+    )
 
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(write_only=True, required=True,
+                                     validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -59,7 +61,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         # send email
-        activation_link = f"{settings.FRONTEND_URL}/confirm-email/?user_id={user.id}&confirmation_token={confirmation_token}"
+        activation_link = (f"{settings.FRONTEND_URL}/confirm-email/?user_id={user.id}"
+                           f"&confirmation_token={confirmation_token}")
 
         send_mail(
             'Email Confirmation',
@@ -74,12 +77,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'first_name',"middle_name", "last_name", "dob", "phone_number",]
+        fields = ['id', 'email', 'first_name', "middle_name", "last_name", "dob", "phone_number", ]
         depth = 2
+
 
 class ResidentialAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidentialAddressModel
-        fields = ['id', "nationality", "country", "state" ,"city", "zip",]
+        fields = ['id', "nationality", "country", "state", "city", "zip", ]

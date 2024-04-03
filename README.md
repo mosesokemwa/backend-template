@@ -11,7 +11,7 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ python3 manage.py runserver
 ```
-The above will start the server on (localhost:8000)[http://localhost:8000]
+The above will start the server on [localhost:8000](http://localhost:8000)
 
 ### Running tests
 ```

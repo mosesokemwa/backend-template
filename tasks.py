@@ -1,7 +1,9 @@
 import os
 import sys
-from invoke import task
 from pathlib import Path
+
+from invoke import task
+
 
 def taskfile_dir() -> str:
     directory = Path(__file__).parent.absolute()
@@ -13,6 +15,7 @@ def clean(ctx):
     """Remove python cache files"""
     ctx.run("find ./ -type d -name __pycache__ | xargs rm -rf", echo=True)
 
+
 @task()
 def show_urls(ctx):
     """Shows available URLs"""
@@ -20,13 +23,13 @@ def show_urls(ctx):
 
 
 @task()
-def makemigrations(ctx, app=None):
+def migrations(ctx, app=None):
     """Shows available URLs"""
     ctx.run(f"python manage.py makemigrations {app or ''}", pty=True)
 
 
 @task()
-def migrate(ctx, app = None, database=None):
+def migrate(ctx, app=None, database=None):
     """Shows available URLs"""
     if app is None:
         app = []
@@ -35,18 +38,18 @@ def migrate(ctx, app = None, database=None):
     with ctx.cd(taskfile_dir()):
         ctx.run(f"python manage.py migrate {apps} {args}", pty=True, echo=True)
 
+
 @task()
 def runserver(
-    ctx,
-    plus=False,
-    debugtoolbar=False,
-    joblib_cache=False,
-    ip="127.0.0.1",
-    port=os.getenv("PORT", "8000"),
+        ctx,
+        plus=False,
+        debugtoolbar=False,
+        joblib_cache=False,
+        ip="127.0.0.1",
+        port=os.getenv("PORT", "8000"),
 ):
     """Runs development server"""
     if os.getenv("SENTRY_DSN", ""):
-
         print(
             "\nPlease consider unsetting SENTRY_DSN to preserve monthly transactions\n",
             file=sys.stderr,
@@ -62,6 +65,7 @@ def runserver(
     command = f"{command} {ip}:{port}"
     ctx.run(f"python manage.py {command}", echo=True, pty=True, env=env)
 
+
 @task()
 def test(ctx, coverage=False, verbose=False, failfast=False):
     """Run tests"""
@@ -69,6 +73,7 @@ def test(ctx, coverage=False, verbose=False, failfast=False):
     args = f"{args} --verbose" if verbose else args
     args = f"{args} --failfast" if failfast else args
     ctx.run(f"python manage.py test {args}", echo=True, pty=True)
+
 
 @task()
 def freeze(ctx):
