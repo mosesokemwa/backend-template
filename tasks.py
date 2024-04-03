@@ -40,7 +40,7 @@ def migrate(ctx, app=None, database=None):
 
 
 @task()
-def runserver(
+def run(
         ctx,
         plus=False,
         debugtoolbar=False,
@@ -79,3 +79,18 @@ def test(ctx, coverage=False, verbose=False, failfast=False):
 def freeze(ctx):
     # freeze installed packages in requirements.txt
     ctx.run("pip freeze > requirements.txt", echo=True)
+
+@task()
+def shell(ctx):
+    """Runs Django shell"""
+    ctx.run("python manage.py shell", echo=True, pty=True)
+
+@task()
+def shell_plus(ctx):
+    """Runs Django shell_plus"""
+    ctx.run("python manage.py shell_plus", echo=True, pty=True)
+
+@task()
+def startapp(ctx, app):
+    """Runs Django startapp"""
+    ctx.run(f"python manage.py startapp {app}", echo=True, pty=True)
