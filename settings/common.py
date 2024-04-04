@@ -10,9 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from os.path import abspath, dirname, join
 from pathlib import Path
 
 from decouple import config
+
+# ##### PATH CONFIGURATION ################################
+
+# fetch Django's project directory
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,7 +101,11 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': '',
-    }
+    },
+    'TEST': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': join(DJANGO_ROOT, 'run', 'dev.sqlite3'),
+    },
 }
 
 LOGGING = {
@@ -166,3 +176,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 FRONTEND_URL = config('FRONTEND_URL')
+
+CACHES = {
+    "default": {
+        "BACKEND": config("REDIS_BACKEND"),
+        "LOCATION": config("REDIS_DB_LOCATION"),
+        "OPTIONS": {
+            "CLIENT_CLASS": config("REDIS_CLIENT_CLASS")
+        },
+        "KEY_PREFIX": "development"
+    }
+}
