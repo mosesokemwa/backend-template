@@ -13,13 +13,14 @@ exceptiongroup==1.2.0
 inflection==0.5.1
 iniconfig==2.0.0
 invoke==2.2.0
+model-bakery==1.17.0
 packaging==24.0
 pluggy==1.4.0
 psycopg2-binary==2.9.9
 pycodestyle==2.11.1
 pycparser==2.22
 PyJWT==2.8.0
-pytest==8.1.1
+pytest-django==4.8.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 pytz==2024.1

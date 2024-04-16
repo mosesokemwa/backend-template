@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname
 from pathlib import Path
 
 from decouple import config
@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'drf_yasg',
     'knox',
+    'auditlog',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
@@ -93,27 +94,35 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': '',
-    },
-    'TEST': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': join(DJANGO_ROOT, 'run', 'dev.sqlite3'),
-    },
-}
-
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s"
+                      " [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+    },
     'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
         'console': {
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+        'stdOut': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'stdErr': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
         },
     },
     'root': {
@@ -122,8 +131,21 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'stdOut', 'stdErr'],
             'level': config('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['console', 'stdOut', 'stdErr'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['console', 'stdOut', 'stdErr'],
+            'propagate': False,
+        },
+        'auth_app': {
+            'handlers': ['console', 'stdOut', 'stdErr'],
             'propagate': False,
         },
     },
@@ -187,3 +209,6 @@ CACHES = {
         "KEY_PREFIX": "development"
     }
 }
+
+
+AUDITLOG_INCLUDE_ALL_MODELS = True

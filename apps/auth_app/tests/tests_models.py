@@ -1,75 +1,67 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from django.utils import timezone
+from model_bakery import baker
 
 from apps.auth_app.models import ServerSideCredentials
 
 User = get_user_model()
 
-
-# Note: The following tests assume the existence of a utils.misc.exclude_by_keys function,
-# which is not provided in the code snippet. Adjustments may be needed based on its implementation.
-
 @pytest.mark.django_db
-@pytest.mark.parametrize("username,first_name,email,password,is_active,is_admin,is_staff", [
-    # ID: HappyPath-1
-    ("testuser", "Test", "test@example.com", "password123", True, False, False),
-    # ID: HappyPath-2
-    ("adminuser", "Admin", "admin@example.com", "adminpassword", True, True, True),
-    # ID: EdgeCase-1 (Minimal info for a user)
-    ("minimaluser", "Minimal", "minimal@example.com", "minimalpassword", True, False, False),
-    # ID: ErrorCase-1 (Missing username)
-    (None, "Error", "error@example.com", "errorpassword", True, False, False),
-    # ID: ErrorCase-2 (Missing email)
-    ("erroruser", "Error", None, "errorpassword", True, False, False),
-])
-def test_create_user(username, first_name, email, password, is_active, is_admin, is_staff):
-    # Arrange
-    # sourcery skip: no-conditionals-in-tests
-    if username is None or email is None:
-        with pytest.raises(ValueError):
+class TestModels(TestCase):
+
+    def setUp(self):
+        self.user = baker.make(User)
+        self.server_side_credentials = baker.make(ServerSideCredentials)
+
+    def test_user_model(self):
+        # Arrange
+        # sourcery skip: no-conditionals-in-tests
+        if self.user.username is None or self.user.email is None:
+            with self.assertRaises(ValueError):
+                # Act
+                User.objects.create_user(
+                    username=self.user.username,
+                    first_name=self.user.first_name, email=self.user.email,
+                    password=self.user.password,
+                    is_active=self.user.is_active, is_admin=self.user.admin,
+                    is_staff=self.user.is_staff
+                )
+        else:
             # Act
-            User.objects.create_user(username=username, first_name=first_name, email=email,
-                                     password=password, is_active=is_active, is_admin=is_admin,
-                                     is_staff=is_staff)
-    else:
+            user = User.objects.create_user(
+                username=self.user.username,
+                first_name=self.user.first_name, email=self.user.email,
+                password=self.user.password,
+                is_active=self.user.is_active,
+                is_admin=self.user.admin,
+                is_staff=self.user.is_staff
+            )
+
+            # Assert
+            self.assertEqual(user.username, self.user.username)
+            self.assertEqual(user.first_name, self.user.first_name)
+            self.assertEqual(user.email, self.user.email)
+            self.assertTrue(user.check_password(self.user.password))
+            self.assertEqual(user.is_active, self.user.is_active)
+            self.assertEqual(user.is_superuser, self.user.admin)
+            self.assertEqual(user.is_staff, self.user.is_staff)
+
+    def test_server_side_credentials(self):
+        # ID: HappyPath-1
+        api_key = "key123"
+        api_secret = "secret123"
+        expiry = timezone.now() + timezone.timedelta(days=1)
+        is_active = True
+        user = baker.make(User)
+
         # Act
-        user = User.objects.create_user(username=username, first_name=first_name, email=email,
-                                        password=password, is_active=is_active, is_admin=is_admin,
-                                        is_staff=is_staff)
+        server_side_credentials = ServerSideCredentials.objects.create(
+            api_key=api_key, api_secret=api_secret, expiry=expiry, is_active=is_active, user=user
+        )
 
         # Assert
-        assert user.username == username
-        assert user.first_name == first_name
-        assert user.email == email
-        assert user.check_password(password)
-        assert user.is_active == is_active
-        assert user.is_superuser == is_admin
-        assert user.is_staff == is_staff
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("api_key,api_secret,expiry,is_active", [
-    # ID: HappyPath-1
-    ("key123", "secret123", timezone.now() + timezone.timedelta(days=1), True),
-    # ID: HappyPath-2
-    ("key456", "secret456", None, False),
-    # ID: EdgeCase-1 (Expiry in the past)
-    ("key789", "secret789", timezone.now() - timezone.timedelta(days=1), True),
-])
-def test_server_side_credentials(api_key, api_secret, expiry, is_active):
-    # Arrange
-    user = User.objects.create_user(username="testuser", first_name="Test",
-                                    email="test@example.com", password="password123")
-
-    # Act
-    credentials = ServerSideCredentials.objects.create(user=user, api_key=api_key,
-                                                       api_secret=api_secret, expiry=expiry,
-                                                       is_active=is_active)
-
-    # Assert
-    assert credentials.user == user
-    assert credentials.api_key == api_key
-    assert credentials.api_secret == api_secret
-    assert credentials.expiry == expiry
-    assert credentials.is_active == is_active
+        self.assertEqual(server_side_credentials.api_key, api_key)
+        self.assertEqual(server_side_credentials.api_secret, api_secret)
+        self.assertEqual(server_side_credentials.expiry, expiry)

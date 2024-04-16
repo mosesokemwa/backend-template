@@ -73,7 +73,7 @@ def test(ctx, coverage=False, verbose=False, failfast=False):
     args = "--cov" if coverage else ""
     args = f"{args} --verbose" if verbose else args
     args = f"{args} --failfast" if failfast else args
-    ctx.run(f"python manage.py test {args}", echo=True, pty=True)
+    ctx.run(f"python manage.py test --pattern='tests_*.py' {args} ", echo=True, pty=True)
 
 
 @task()
@@ -99,7 +99,14 @@ def startapp(ctx, app):
     """Runs Django startapp"""
     ctx.run(f"python manage.py startapp {app}", echo=True, pty=True)
 
+
 @task()
 def superuser(ctx):
     """Create superuser"""
     ctx.run("python manage.py createsuperuser", echo=True, pty=True)
+
+
+@task()
+def collectstatic(ctx):
+    """Collect static files"""
+    ctx.run("python manage.py collectstatic --noinput", echo=True, pty=True)
