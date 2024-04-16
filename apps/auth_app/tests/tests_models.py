@@ -8,6 +8,7 @@ from apps.auth_app.models import ServerSideCredentials
 
 User = get_user_model()
 
+
 @pytest.mark.django_db
 class TestModels(TestCase):
 

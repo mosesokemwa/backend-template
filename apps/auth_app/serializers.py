@@ -109,3 +109,13 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', 'is_active', 'staff', 'admin']
+        read_only_fields = ['id', 'is_active', 'staff', 'admin']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
