@@ -23,8 +23,9 @@ class TestLoginViewPost(TestCase):
 
         # Assert
         self.assertEqual(response.status_code, status_code)
-        if status_code == status.HTTP_200_OK:
-            self.assertIn('token', response.data)
+        if status_code != status.HTTP_200_OK:
+            return
+        self.assertIn('token', response.data)
 
     def test_login_view_post_wrong_password(self):
         # Arrange
