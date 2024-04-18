@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
@@ -81,9 +82,11 @@ class AuthTokenSerializer(serializers.Serializer):
         formulae: today - password_last_updated > 90 days
         """
         if user_obj.password_last_updated:
-            msg = _("Your password has not been updated for more than 90 days. Please update "
-                    "your password.")
-            raise serializers.ValidationError(msg, code='authorization')
+            days = (timezone.now() - user_obj.password_last_updated).days
+            if days > 90:
+                msg = _("Your password has not been updated for more than 90 days. Please update "
+                        "your password.")
+                raise serializers.ValidationError(msg, code='authorization')
 
     @staticmethod
     def validate_email_verified(user_obj):

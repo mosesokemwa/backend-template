@@ -63,7 +63,9 @@ class UserAdmin(BaseUserAdmin):
         return f"{obj.first_name} {obj.last_name}".title()
 
     def days_since_last_login(self, obj):
-        return (timezone.now() - obj.created_at).days
+        if obj.last_login:
+            return (timezone.now() - obj.last_login).days
+        return 0
 
 
 admin.site.register(User, UserAdmin)

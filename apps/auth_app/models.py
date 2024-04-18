@@ -79,6 +79,20 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Model representing a user with authentication-related fields.
+
+    The User model defines fields for user authentication and profile information, including
+    username, email, password, and user roles.
+
+    Properties:
+    - get_full_name: Returns the full name of the user.
+    - get_short_name: Returns the short name of the user.
+    - is_staff: Indicates if the user is a staff member.
+    - is_active: Indicates if the user account is active.
+    - is_superuser: Indicates if the user has superuser/admin privileges.
+    """
+
     uuid = models.UUIDField(blank=True, null=True, unique=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=30)
 
