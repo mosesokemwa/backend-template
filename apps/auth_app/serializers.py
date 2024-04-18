@@ -28,9 +28,10 @@ class AuthTokenSerializer(serializers.Serializer):
 
         user_obj = User.objects.filter(email=email).first()
         # validate user details
-        self.validate_password_last_updated(user_obj)
-        self.validate_email_verified(user_obj)
         attrs = self.validate_user_details(user_obj, credentials, attrs)
+        if user_obj is not None:
+            self.validate_password_last_updated(user_obj)
+            self.validate_email_verified(user_obj)
         return attrs
 
     @staticmethod
