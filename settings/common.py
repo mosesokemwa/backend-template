@@ -210,5 +210,4 @@ CACHES = {
     }
 }
 
-
 AUDITLOG_INCLUDE_ALL_MODELS = True
