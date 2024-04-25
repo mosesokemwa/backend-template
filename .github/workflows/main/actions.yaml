@@ -1,0 +1,96 @@
+name: 'Docker Build and Push'
+description: 'Docker Build and Push'
+inputs:
+  ecr-account:
+    required: false
+    type: string
+    default: "NONE"
+  ecr-regestry:
+    required: false
+    type: string
+    default: "NONE"
+  ecr-repo:
+    required: true
+    type: string
+  image-tag:
+    required: false
+    type: string
+    default: "NONE"
+  branch:
+    required: true
+    type: string
+  ref:
+    required: false
+    type: string
+  runs-on:
+    required: false
+    type: string
+    default: "ubuntu-latest"
+  aws-role:
+    required: false
+    type: string
+    default: "NONE"
+  aws-region:
+    required: false
+    type: string
+    default: "NONE"
+  ssm-dir:
+    required: false
+    type: string
+    default: "NONE"
+  environment: # The environment (DEV or PROD)
+    required: false
+    type: string
+    default: "NONE"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref || inputs.branch }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws-role }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Get Environmental Variables to .env file
+      env:
+        SSM_DIR: ${{ inputs.ssm-dir }}
+      shell: bash
+      run: |
+        ./ssm.sh $SSM_DIR
+
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registries: ${{ inputs.ecr-account }}
+
+    - name: Build docker image
+      env:
+        REGISTRY: ${{ inputs.ecr-registry }}
+        REPOSITORY: ${{ inputs.ecr-repo }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        ENV: ${{ inputs.environment }}
+      shell: bash
+      run: |
+        IMAGE_URI="$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+        echo "$ENV" > build_env.txt
+        docker build \
+          -t $IMAGE_URI \
+          .
+
+    - name: Push to Amazon ECR
+      env:
+        REGISTRY: ${{ inputs.ecr-registry }}
+        REPOSITORY: ${{ inputs.ecr-repo }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+      shell: bash
+      run: |
+        IMAGE_URI="$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+        docker push $IMAGE_URI

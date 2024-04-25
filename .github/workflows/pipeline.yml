@@ -1,0 +1,38 @@
+name: Backend Template CD Pipeline
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  build-push-dev:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Declare some variables
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+
+      - name: Build and push image to Amazon ECR (DEV)
+        uses: ./.github/workflows/main/
+        if: github.ref == 'refs/heads/develop'
+        with:
+          branch: develop
+          ssm-dir: /backend-template/dev
+          # The environment (DEV or PROD)
+          environment: DEV
+          ecr-account: 316426069489
+          ecr-registry: 316426069489.dkr.ecr.us-east-1.amazonaws.com
+          ecr-repo: ecr-backend-template-dev
+          image-tag: ${{ env.sha_short }}
+          runs-on: ubuntu-latest
+          aws-role: arn:aws:iam::316426069489:role/github-runners-push-to-ecr-role
+          aws-region: us-east-1

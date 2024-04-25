@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # Configuration for pip
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    groups:
+      # Specify a name for the group, which will be used in pull request titles
+      # and branch names
+      general-dependencies:
+        # Define patterns to include dependencies in the group (based on
+        # dependency name)
+        applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "*"
+    target-branch: "develop"
+
+  - package-ecosystem: "github-actions"
+    # Workflow files stored in the default location of `.github/workflows`. (You don't need to specify `/.github/workflows` for `directory`. You can use `directory: "/"`.)
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # Disable all pull requests for GitHub Actions dependencies
+    open-pull-requests-limit: 2
