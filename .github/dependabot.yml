@@ -16,7 +16,7 @@ updates:
         applies-to: version-updates # Applies the group rule to version updates
         patterns:
           - "*"
-    target-branch: "develop"
+    target-branch: "main"
 
   - package-ecosystem: "github-actions"
     # Workflow files stored in the default location of `.github/workflows`. (You don't need to specify `/.github/workflows` for `directory`. You can use `directory: "/"`.)
